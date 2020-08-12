@@ -2,7 +2,9 @@ const { override, addLessLoader } = require('customize-cra')
 
 module.exports = override(
   addLessLoader({
-    javascriptEnabled: true,
-    modifyVars: { '@primary-color': '#3351ff' },
+    lessOptions: {
+      javascriptEnabled: true,
+      modifyVars: { '@primary-color': '#3351ff' },
+    }
   })
 )
