@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Button, Drawer, Modal, Space } from 'antd'
 import MachineForm, { IMachine } from './MachineForm'
+import MachinesTable from './MachinesTable'
 
 export default function Machines() {
   const [showForm, setShowForm] = useState(false)
@@ -60,10 +61,19 @@ export default function Machines() {
     setShowForm(true)
   }
 
-  function editMachine() {
-    setCurMachine(Object.values(machines)[0])
+  const editMachine = useCallback((m: IMachine) => {
+    setCurMachine(m)
     setShowForm(true)
-  }
+  }, [])
+
+  const deleteMachine = useCallback(
+    (m: IMachine) => {
+      const newMachines = { ...machines }
+      delete newMachines[m.id]
+      setMachines(newMachines)
+    },
+    [machines]
+  )
 
   return (
     <div>
@@ -71,12 +81,15 @@ export default function Machines() {
         <Button type="primary" onClick={addMachine}>
           添加机器
         </Button>
-        <Button type="primary" onClick={editMachine}>
-          编辑机器
-        </Button>
       </Space>
 
-      <pre>{JSON.stringify(machines, undefined, 2)}</pre>
+      <div style={{ marginTop: 16 }}>
+        <MachinesTable
+          machines={machines}
+          onEdit={editMachine}
+          onDelete={deleteMachine}
+        />
+      </div>
 
       <Drawer
         title={curMachine ? '修改 SSH 远程主机' : '添加 SSH 远程主机'}

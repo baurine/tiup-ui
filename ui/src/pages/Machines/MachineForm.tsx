@@ -115,7 +115,17 @@ export default function MachineForm({
         {addNew && (
           <Collapse.Panel key="import" header="导入模板">
             <Form.Item label="以现有主机配置作为模板">
-              <Select placeholder="选择模板" onChange={handleTemplateChange}>
+              <Select
+                placeholder="选择模板"
+                onChange={handleTemplateChange}
+                showSearch
+                filterOption={(input, option) => {
+                  const m = machines[option?.key!]
+                  const v = `${m.name} ${m.username}@${m.host}:${m.port}`
+                  return v.indexOf(input) > -1
+                }}
+                optionLabelProp="label"
+              >
                 {Object.values(machines).map((m) => {
                   return (
                     <Select.Option value={m.id} label={m.name} key={m.id}>
