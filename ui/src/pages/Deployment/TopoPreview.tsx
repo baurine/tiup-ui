@@ -9,7 +9,7 @@ interface ITopoPreviewProps {
   components: { [key: string]: IComponent }
 }
 
-function genTopo({ machines, components }: ITopoPreviewProps) {
+export function genTopo({ machines, components }: ITopoPreviewProps) {
   const componentsArr = Object.values(components)
 
   let topo = {} as any

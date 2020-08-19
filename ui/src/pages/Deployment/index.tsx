@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { useLocalStorageState } from 'ahooks'
-import { Drawer, Space, Button, Modal } from 'antd'
+import { Drawer, Space, Button, Modal, Form, Input, Select } from 'antd'
 import uniqid from 'uniqid'
 
 import { IMachine } from '../Machines/MachineForm'
@@ -24,6 +24,18 @@ import DeploymentTable, {
 } from './DeploymentTable'
 import EditCompForm from './EditCompForm'
 import TopoPreview from './TopoPreview'
+
+// TODO: fetch from API
+const TIDB_VERSIONS = [
+  'v4.0.4',
+  'v4.0.3',
+  'v4.0.2',
+  'v4.0.1',
+  'v4.0.0',
+  'v3.1.2',
+  'v3.1.1',
+  'v3.1.0',
+]
 
 export default function DeploymentPage() {
   const [machines] = useLocalStorageState<{
@@ -138,11 +150,43 @@ export default function DeploymentPage() {
     [components, setComponents]
   )
 
+  function handleFinish(values: any) {
+    // TODO, send post request
+    console.log(values)
+  }
+
   return (
     <div>
-      <Space>
-        <Button onClick={() => setPreviewYaml(true)}>预览 YAML</Button>
-      </Space>
+      <Form layout="inline" onFinish={handleFinish}>
+        <Form.Item
+          label="集群名字"
+          name="cluster_name"
+          rules={[{ required: true, message: '请输出集群名字' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="TiDB 版本"
+          name="tidb_version"
+          rules={[{ required: true, message: '请选择 TiDB 版本' }]}
+        >
+          <Select style={{ width: 100 }}>
+            {TIDB_VERSIONS.map((ver) => (
+              <Select.Option key={ver} value={ver}>
+                {ver}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item>
+          <Space>
+            <Button onClick={() => setPreviewYaml(true)}>预览 YAML</Button>
+            <Button type="primary" htmlType="submit">
+              开始部署
+            </Button>
+          </Space>
+        </Form.Item>
+      </Form>
 
       <div style={{ marginTop: 16 }}>
         <DeploymentTable
