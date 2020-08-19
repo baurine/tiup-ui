@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { useLocalStorageState } from 'ahooks'
-import { Drawer } from 'antd'
+import { Drawer, Space, Button, Modal } from 'antd'
 import uniqid from 'uniqid'
 
 import { IMachine } from '../Machines/MachineForm'
@@ -23,6 +23,7 @@ import DeploymentTable, {
   DEF_ALERT_CLUSTER_PORT,
 } from './DeploymentTable'
 import EditCompForm from './EditCompForm'
+import TopoPreview from './TopoPreview'
 
 export default function DeploymentPage() {
   const [machines] = useLocalStorageState<{
@@ -32,6 +33,8 @@ export default function DeploymentPage() {
     [key: string]: IComponent
   }>('components', {})
   const [curComp, setCurComp] = useState<IComponent | undefined>(undefined)
+
+  const [previewYaml, setPreviewYaml] = useState(false)
 
   const handleAddComponent = useCallback(
     (machine: IMachine, componentType: string) => {
@@ -137,14 +140,20 @@ export default function DeploymentPage() {
 
   return (
     <div>
-      <DeploymentTable
-        machines={machines}
-        components={components}
-        onAddComponent={handleAddComponent}
-        onEditComponent={(rec) => setCurComp(rec)}
-        onDeleteComponent={handleDeleteComponent}
-        onDeleteComponents={handleDeleteComponents}
-      />
+      <Space>
+        <Button onClick={() => setPreviewYaml(true)}>预览 YAML</Button>
+      </Space>
+
+      <div style={{ marginTop: 16 }}>
+        <DeploymentTable
+          machines={machines}
+          components={components}
+          onAddComponent={handleAddComponent}
+          onEditComponent={(rec) => setCurComp(rec)}
+          onDeleteComponent={handleDeleteComponent}
+          onDeleteComponents={handleDeleteComponents}
+        />
+      </div>
 
       <Drawer
         title={curComp && `修改 ${curComp.type} 组件`}
@@ -156,6 +165,15 @@ export default function DeploymentPage() {
       >
         <EditCompForm comp={curComp} onUpdateComp={handleUpdateComponent} />
       </Drawer>
+
+      <Modal
+        title="Topology Yaml"
+        visible={previewYaml}
+        onOk={() => setPreviewYaml(false)}
+        onCancel={() => setPreviewYaml(false)}
+      >
+        <TopoPreview machines={machines} components={components} />
+      </Modal>
     </div>
   )
 }

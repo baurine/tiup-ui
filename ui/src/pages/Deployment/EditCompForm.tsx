@@ -23,7 +23,7 @@ import {
   DEF_ALERT_CLUSTER_PORT,
 } from './DeploymentTable'
 
-export interface IEditCompFormProps {
+interface IEditCompFormProps {
   comp?: IComponent
   onUpdateComp: (comp: IComponent) => void
 }

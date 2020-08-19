@@ -3,7 +3,7 @@ import { Table, Space, Divider, Popconfirm } from 'antd'
 
 import { IMachine, DEF_SSH_PORT } from './MachineForm'
 
-export interface IMachinesTableProps {
+interface IMachinesTableProps {
   machines: { [key: string]: IMachine }
   onEdit?: (m: IMachine) => void
   onDelete?: (m: IMachine) => void

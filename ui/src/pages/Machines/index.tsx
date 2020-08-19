@@ -39,6 +39,7 @@ export default function MachinesPage() {
   }
 
   function handleUpdateMachine(machine: IMachine) {
+    // TODO: duplicated with above code
     let dup = Object.values(machines).find((m) => m.host === machine.host)
     if (dup && dup.id !== machine.id) {
       Modal.error({
@@ -79,6 +80,9 @@ export default function MachinesPage() {
       const newMachines = { ...machines }
       delete newMachines[m.id]
       setMachines(newMachines)
+
+      // TODO
+      // delete related components
     },
     [machines, setMachines]
   )

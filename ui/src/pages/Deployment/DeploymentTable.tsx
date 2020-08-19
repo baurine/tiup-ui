@@ -89,7 +89,7 @@ export interface IAlertManagerComponent extends IComponent {
 export const DEF_ALERT_WEB_PORT = 9093
 export const DEF_ALERT_CLUSTER_PORT = 9094
 
-export interface IDeploymentTableProps {
+interface IDeploymentTableProps {
   machines: { [key: string]: IMachine }
   components: { [key: string]: IComponent }
   onAddComponent?: (machine: IMachine, componentType: string) => void

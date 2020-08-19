@@ -46,7 +46,7 @@ const defMachine: IMachine = {
   rack: '',
 }
 
-export interface IMachineFormProps {
+interface IMachineFormProps {
   machine?: IMachine
   machines: { [key: string]: IMachine }
   onAdd?: (machine: IMachine, close: boolean) => boolean
