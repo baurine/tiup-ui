@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pingcap/tiup/pkg/cluster"
 	"github.com/pingcap/tiup/pkg/cluster/spec"
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
 var tidbSpec *spec.SpecManager
@@ -21,6 +22,7 @@ func main() {
 	manager = cluster.NewManager("tidb", tidbSpec)
 
 	router := gin.Default()
+	router.Use(cors.AllowAll())
 	api := router.Group("/api")
 	{
 		api.POST("/deploy", deployHandler)

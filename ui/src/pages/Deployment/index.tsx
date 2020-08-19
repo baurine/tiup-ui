@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react'
 import { useLocalStorageState } from 'ahooks'
 import { Drawer, Space, Button, Modal, Form, Input, Select } from 'antd'
 import uniqid from 'uniqid'
+import yaml from 'yaml'
 
 import { IMachine } from '../Machines/MachineForm'
 import DeploymentTable, {
@@ -23,7 +24,7 @@ import DeploymentTable, {
   DEF_ALERT_CLUSTER_PORT,
 } from './DeploymentTable'
 import EditCompForm from './EditCompForm'
-import TopoPreview from './TopoPreview'
+import TopoPreview, { genTopo } from './TopoPreview'
 
 // TODO: fetch from API
 const TIDB_VERSIONS = [
@@ -151,8 +152,21 @@ export default function DeploymentPage() {
   )
 
   function handleFinish(values: any) {
-    // TODO, send post request
-    console.log(values)
+    const topoYaml = yaml.stringify(genTopo({ machines, components }))
+    fetch('http://localhost:8080/api/deploy', {
+      method: 'post',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...values,
+        topo_yaml: topoYaml,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => console.log(data))
+      .catch((err) => console.log(err))
   }
 
   return (
