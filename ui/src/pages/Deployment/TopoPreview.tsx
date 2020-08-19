@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import yaml from 'yaml'
 
 import { IMachine } from '../Machines/MachineForm'
 import { IComponent, COMPONENT_TYPES } from './DeploymentTable'
@@ -67,7 +68,8 @@ export default function TopoPreview({
 
   return (
     <div>
-      <pre>{JSON.stringify(topo, undefined, 2)}</pre>
+      {/* TODO: syntax highlight */}
+      <pre>{yaml.stringify(topo)}</pre>
     </div>
   )
 }
