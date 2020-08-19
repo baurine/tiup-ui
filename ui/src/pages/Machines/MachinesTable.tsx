@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
-import { IMachine } from './MachineForm'
 import { Table, Space, Divider, Popconfirm } from 'antd'
+
+import { IMachine, DEF_SSH_PORT } from './MachineForm'
 
 export interface IMachinesTableProps {
   machines: { [key: string]: IMachine }
@@ -13,7 +14,10 @@ export default function MachinesTable({
   onEdit,
   onDelete,
 }: IMachinesTableProps) {
-  const dataSource = useMemo(() => Object.values(machines), [machines])
+  const dataSource = useMemo(
+    () => Object.values(machines).sort((a, b) => (a.host > b.host ? 1 : -1)),
+    [machines]
+  )
   const columns = useMemo(() => {
     return [
       {
@@ -24,7 +28,8 @@ export default function MachinesTable({
       {
         title: '地址',
         key: 'address',
-        render: (text: any, rec: any) => `${rec.host}:${rec.port}`,
+        render: (text: any, rec: any) =>
+          `${rec.host}:${rec.ssh_port || DEF_SSH_PORT}`,
       },
       {
         title: '登录用户',
@@ -71,10 +76,11 @@ export default function MachinesTable({
 
   return (
     <Table
+      size="middle"
       dataSource={dataSource}
       columns={columns}
       pagination={false}
-      rowKey="name"
+      rowKey="id"
     />
   )
 }

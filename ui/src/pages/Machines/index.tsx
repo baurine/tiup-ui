@@ -1,21 +1,25 @@
 import React, { useState, useCallback } from 'react'
 import { Button, Drawer, Modal, Space } from 'antd'
+import { useLocalStorageState } from 'ahooks'
+
 import MachineForm, { IMachine } from './MachineForm'
 import MachinesTable from './MachinesTable'
 
-export default function Machines() {
+export default function MachinesPage() {
   const [showForm, setShowForm] = useState(false)
-  const [machines, setMachines] = useState<{ [key: string]: IMachine }>({})
+  const [machines, setMachines] = useLocalStorageState<{
+    [key: string]: IMachine
+  }>('machines', {})
   const [curMachine, setCurMachine] = useState<IMachine | undefined>(undefined)
 
-  function handleAddMachine(machine: IMachine) {
+  function handleAddMachine(machine: IMachine, close: boolean) {
     let dup = Object.values(machines).find((m) => m.host === machine.host)
     if (dup !== undefined) {
       Modal.error({
         title: '添加失败',
         content: `该主机 ${machine.host} 已存在`,
       })
-      return
+      return false
     }
 
     dup = Object.values(machines).find((m) => m.name === machine.name)
@@ -24,11 +28,14 @@ export default function Machines() {
         title: '添加失败',
         content: `该主机 name ${machine.name} 已被使用`,
       })
-      return
+      return false
     }
 
     setMachines({ ...machines, [machine.id]: machine })
-    setShowForm(false)
+    if (close) {
+      setShowForm(false)
+    }
+    return true
   }
 
   function handleUpdateMachine(machine: IMachine) {
@@ -38,7 +45,7 @@ export default function Machines() {
         title: '添加失败',
         content: `该主机 ${machine.host} 已存在`,
       })
-      return
+      return false
     }
 
     dup = Object.values(machines).find((m) => m.name === machine.name)
@@ -47,19 +54,20 @@ export default function Machines() {
         title: '添加失败',
         content: `该主机 name ${machine.name} 已被使用`,
       })
-      return
+      return false
     }
     setMachines({
       ...machines,
       [machine.id]: machine,
     })
     setShowForm(false)
+    return true
   }
 
-  function addMachine() {
+  const addMachine = useCallback(() => {
     setCurMachine(undefined)
     setShowForm(true)
-  }
+  }, [])
 
   const editMachine = useCallback((m: IMachine) => {
     setCurMachine(m)
@@ -72,7 +80,7 @@ export default function Machines() {
       delete newMachines[m.id]
       setMachines(newMachines)
     },
-    [machines]
+    [machines, setMachines]
   )
 
   return (

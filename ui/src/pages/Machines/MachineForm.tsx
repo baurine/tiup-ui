@@ -15,7 +15,7 @@ export interface IMachine {
   id: string
   name: string
   host: string
-  port: number
+  ssh_port?: number
 
   isPubKeyAuth: boolean
   privateKey: string
@@ -27,12 +27,13 @@ export interface IMachine {
   dc: string
   rack: string
 }
+export const DEF_SSH_PORT = 22
 
 const defMachine: IMachine = {
   id: '',
   name: '',
   host: '',
-  port: 22,
+  ssh_port: undefined,
 
   isPubKeyAuth: false,
   privateKey: '',
@@ -48,8 +49,8 @@ const defMachine: IMachine = {
 export interface IMachineFormProps {
   machine?: IMachine
   machines: { [key: string]: IMachine }
-  onAdd?: (machine: IMachine) => void
-  onUpdate?: (machine: IMachine) => void
+  onAdd?: (machine: IMachine, close: boolean) => boolean
+  onUpdate?: (machine: IMachine) => boolean
 }
 
 export default function MachineForm({
@@ -66,17 +67,48 @@ export default function MachineForm({
     form.resetFields()
   }
 
+  function onAddAndNext() {
+    form
+      .validateFields()
+      .then((values) => {
+        if (values.name === '') {
+          values.name = `${values.username}@${values.host}:${
+            values.ssh_port || DEF_SSH_PORT
+          }`
+        }
+        const ok =
+          onAdd &&
+          onAdd(
+            {
+              ...defMachine,
+              ...(values as IMachine),
+              id: uniqid(),
+            },
+            false
+          )
+        if (ok) {
+          form.resetFields()
+        }
+      })
+      .catch((_err) => {})
+  }
+
   function handleFinish(values: any) {
     if (values.name === '') {
-      values.name = `${values.username}@${values.host}:${values.port}`
+      values.name = `${values.username}@${values.host}:${
+        values.ssh_port || DEF_SSH_PORT
+      }`
     }
     if (addNew) {
       onAdd &&
-        onAdd({
-          ...defMachine,
-          ...(values as IMachine),
-          id: uniqid(),
-        })
+        onAdd(
+          {
+            ...defMachine,
+            ...(values as IMachine),
+            id: uniqid(),
+          },
+          true
+        )
     } else {
       onUpdate &&
         onUpdate({
@@ -87,10 +119,14 @@ export default function MachineForm({
     }
   }
 
-  function handleTemplateChange(machineID: string) {
+  function handleTemplateChange(machineID: any) {
+    if (machineID === undefined) {
+      return
+    }
+
     const m = machines[machineID]
     form.setFieldsValue({
-      port: m.port,
+      ssh_port: m.ssh_port,
 
       isPubKeyAuth: m.isPubKeyAuth,
       privateKey: m.privateKey,
@@ -116,12 +152,13 @@ export default function MachineForm({
           <Collapse.Panel key="import" header="导入模板">
             <Form.Item label="以现有主机配置作为模板">
               <Select
+                allowClear
                 placeholder="选择模板"
                 onChange={handleTemplateChange}
                 showSearch
                 filterOption={(input, option) => {
                   const m = machines[option?.key!]
-                  const v = `${m.name} ${m.username}@${m.host}:${m.port}`
+                  const v = `${m.name} ${m.username}@${m.host}:${m.ssh_port}`
                   return v.indexOf(input) > -1
                 }}
                 optionLabelProp="label"
@@ -132,7 +169,7 @@ export default function MachineForm({
                       <div>{m.name}</div>
                       <div>
                         <Typography.Text type="secondary">
-                          {m.username}@{m.host}:{m.port}
+                          {m.username}@{m.host}:{m.ssh_port}
                         </Typography.Text>
                       </div>
                     </Select.Option>
@@ -159,17 +196,8 @@ export default function MachineForm({
           >
             <Input placeholder="主机地址，IP 或域名" />
           </Form.Item>
-          <Form.Item
-            label="端口"
-            name="port"
-            rules={[
-              {
-                required: true,
-                message: '请输入端口',
-              },
-            ]}
-          >
-            <Input />
+          <Form.Item label="SSH 端口" name="ssh_port">
+            <Input placeholder={DEF_SSH_PORT + ''} />
           </Form.Item>
           <Form.Item
             label="登录用户名"
@@ -243,6 +271,11 @@ export default function MachineForm({
             <Button type="primary" htmlType="submit">
               {addNew ? '添加' : '更新'}
             </Button>
+            {addNew && (
+              <Button htmlType="button" onClick={onAddAndNext}>
+                保存并添加下一步
+              </Button>
+            )}
             <Button htmlType="button" onClick={onReset}>
               重置
             </Button>

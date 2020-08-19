@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   NavLink,
+  Navigate,
 } from 'react-router-dom'
 import { Layout, Menu } from 'antd'
 import {
@@ -12,15 +13,12 @@ import {
   ClusterOutlined,
 } from '@ant-design/icons'
 
-import Machines from './pages/Machines'
+import MachinesPage from './pages/Machines'
+import DeploymentPage from './pages/Deployment'
 
 import './App.less'
 
 const { Sider, Content } = Layout
-
-function Deployment() {
-  return <div>Deployment</div>
-}
 
 function Clusters() {
   return <div>Clusters</div>
@@ -29,9 +27,9 @@ function Clusters() {
 function SiderMenu() {
   return (
     <Sider collapsible>
-      <Menu theme="dark" defaultSelectedKeys={['/']} mode="inline">
-        <Menu.Item key="/" icon={<HddOutlined />}>
-          <NavLink to="/">配置机器</NavLink>
+      <Menu theme="dark" defaultSelectedKeys={['/machines']} mode="inline">
+        <Menu.Item key="/machines" icon={<HddOutlined />}>
+          <NavLink to="/machines">配置机器</NavLink>
         </Menu.Item>
         <Menu.Item key="/deploy" icon={<DeploymentUnitOutlined />}>
           <NavLink to="/deploy">部署</NavLink>
@@ -51,8 +49,9 @@ function App() {
         <SiderMenu />
         <Content style={{ backgroundColor: 'white', padding: '24px' }}>
           <Routes>
-            <Route path="/" element={<Machines />} />
-            <Route path="/deploy" element={<Deployment />} />
+            <Route path="/" element={<Navigate to="/machines" />} />
+            <Route path="/machines" element={<MachinesPage />} />
+            <Route path="/deploy" element={<DeploymentPage />} />
             <Route path="/clusters" element={<Clusters />} />
           </Routes>
         </Content>
