@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -27,8 +28,32 @@ func main() {
 	router.Run()
 }
 
+type DeployReq struct {
+	ClusterName string `json:"cluster_name"`
+	TiDBVersion string `json:"tidb_version"`
+	TopoYaml    string `json:"topo_yaml"`
+}
+
 func deployHandler(c *gin.Context) {
 	fmt.Println("start to deploy")
+
+	var req DeployReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	// create temp topo yaml file
+	tmpfile, err := ioutil.TempFile("", "topo")
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+	defer tmpfile.Close()
+	tmpfile.WriteString(req.TopoYaml)
+	topoFilePath := tmpfile.Name()
+	fmt.Println("topo file path:", topoFilePath)
+
 	// parse request parameters
 	// manager.Deploy()
 	c.JSON(http.StatusOK, gin.H{
