@@ -4,13 +4,18 @@ import { useLocalStorageState } from 'ahooks'
 
 import MachineForm, { IMachine } from './MachineForm'
 import MachinesTable from './MachinesTable'
+import { IComponent } from '../Deployment/DeploymentTable'
 
 export default function MachinesPage() {
   const [showForm, setShowForm] = useState(false)
+  const [curMachine, setCurMachine] = useState<IMachine | undefined>(undefined)
+
   const [machines, setMachines] = useLocalStorageState<{
     [key: string]: IMachine
   }>('machines', {})
-  const [curMachine, setCurMachine] = useState<IMachine | undefined>(undefined)
+  const [components, setComponents] = useLocalStorageState<{
+    [key: string]: IComponent
+  }>('components', {})
 
   function handleAddMachine(machine: IMachine, close: boolean) {
     let dup = Object.values(machines).find((m) => m.host === machine.host)
@@ -81,10 +86,17 @@ export default function MachinesPage() {
       delete newMachines[m.id]
       setMachines(newMachines)
 
-      // TODO
-      // delete related components
+      // delete related component
+      const newComps = { ...components }
+      const belongedComps = Object.values(components).filter(
+        (c) => c.machineID === m.id
+      )
+      for (const c of belongedComps) {
+        delete newComps[c.id]
+      }
+      setComponents(newComps)
     },
-    [machines, setMachines]
+    [machines, setMachines, components, setComponents]
   )
 
   return (

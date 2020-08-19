@@ -46,6 +46,25 @@ const defMachine: IMachine = {
   rack: '',
 }
 
+function correctFormValues(values: any) {
+  for (const key of Object.keys(values)) {
+    if (key !== 'ssh_port' && key !== 'isPubKeyAuth') {
+      values[key] = values[key].trim()
+    }
+    if (key === 'ssh_port' && values[key] !== undefined) {
+      values[key] = parseInt(values[key])
+      if (values[key] === 0) {
+        values[key] = undefined
+      }
+    }
+  }
+  if (values.name === '') {
+    values.name = `${values.username}@${values.host}:${
+      values.ssh_port || DEF_SSH_PORT
+    }`
+  }
+}
+
 interface IMachineFormProps {
   machine?: IMachine
   machines: { [key: string]: IMachine }
@@ -71,11 +90,7 @@ export default function MachineForm({
     form
       .validateFields()
       .then((values) => {
-        if (values.name === '') {
-          values.name = `${values.username}@${values.host}:${
-            values.ssh_port || DEF_SSH_PORT
-          }`
-        }
+        correctFormValues(values)
         const ok =
           onAdd &&
           onAdd(
@@ -94,11 +109,7 @@ export default function MachineForm({
   }
 
   function handleFinish(values: any) {
-    if (values.name === '') {
-      values.name = `${values.username}@${values.host}:${
-        values.ssh_port || DEF_SSH_PORT
-      }`
-    }
+    correctFormValues(values)
     if (addNew) {
       onAdd &&
         onAdd(

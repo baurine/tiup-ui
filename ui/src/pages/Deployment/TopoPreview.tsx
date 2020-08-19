@@ -31,10 +31,6 @@ function genTopo({ machines, components }: ITopoPreviewProps) {
 
     for (const comp of comps) {
       const targetMachine = machines[comp.machineID]
-      if (targetMachine === undefined) {
-        continue
-      }
-
       let m = {} as any
       m.host = targetMachine.host
       if (targetMachine.ssh_port !== undefined) {
