@@ -19,7 +19,7 @@ func main() {
 		panic("initialize spec failed")
 	}
 	tidbSpec = spec.GetSpecManager()
-	manager = cluster.NewManager("tidb", tidbSpec)
+	manager = cluster.NewManager("tidb", tidbSpec, spec.TiDBComponentVersion)
 
 	router := gin.Default()
 	router.Use(cors.AllowAll())
